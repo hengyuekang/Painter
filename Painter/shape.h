@@ -40,7 +40,7 @@ public:
     virtual bool isInside(QPoint a);
     //    paint the shape
     virtual void paintShape(QPainter &p, QImage *image, bool isSave);
-    //    paint a squre for mouse to control the shape
+    //    make the point of shape more obvious
     void paintVertex(QPainter &p, int x, int y);
     //    paint a rectangle for the whole shape making it easier to know the frame
     virtual void paintFrame(QPainter &p);
