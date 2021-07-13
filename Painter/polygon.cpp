@@ -1,10 +1,11 @@
-#include "polyline.h"
-
-PolyLine::PolyLine()
+#include "polygon.h"
+#include "line.h"
+#include "qvector.h"
+Polygon::Polygon()
 {
-    type=POLYLINE;
+type = POLYGON;
 }
-PolyLine::PolyLine(QVector<QPoint*> points, ShapeType type, QRgb rgb, QPen pen)
+Polygon::Polygon(QVector<QPoint*> points, ShapeType type, QRgb rgb, QPen pen)
 {
     this->points = points;
     this->type = type;
@@ -13,23 +14,35 @@ PolyLine::PolyLine(QVector<QPoint*> points, ShapeType type, QRgb rgb, QPen pen)
     this->pen = pen;
     refreshData();
 }
-PolyLine::~PolyLine() {}
-void PolyLine::setPoint(QPoint a)
+Polygon::~Polygon() {}
+void Polygon::setPoint(QPoint a)
 {
     while (points.size() < 1) //delete
-        {
-            QPoint* newP = new QPoint;
-            points.append(newP);
-        }
+    {
+        QPoint* newP = new QPoint;
+        points.append(newP);
+    }
+    points.last()->setX(a.x());
+    points.last()->setY(a.y());
+    refreshData();
+}
+
+void Polygon::setEndPoint(QPoint a)
+{
+    if (points.size() > 2 && isAroundPoint(points[0], a))
+    {
+        isEnd = true;
+        points.last() = points[0];
+    }
+    else
+    {
         points.last()->setX(a.x());
         points.last()->setY(a.y());
-        refreshData();
+        startNewLine(a);
+    }
+    refreshData();
 }
-void PolyLine::setEndPoint(QPoint a)
-{
-    isEnd=true;
-}
-void PolyLine::startNewLine(QPoint a)
+void Polygon::startNewLine(QPoint a)
 {
     if (isEnd)
         return ;
@@ -39,11 +52,8 @@ void PolyLine::startNewLine(QPoint a)
     points.last()->setY(a.y());
     refreshData();
 }
-bool PolyLine::isPolyLineEnd()
-{
-    return isEnd;
-}
-QPoint* PolyLine::isAround(QPoint a)
+bool Polygon::isPolyEnd() { return isEnd; }
+QPoint* Polygon::isAround(QPoint a)
 {
     for (int i = 0; i < points.size(); i++)
     {
@@ -52,7 +62,7 @@ QPoint* PolyLine::isAround(QPoint a)
     }
     return NULL;
 }
-bool PolyLine::isInside(QPoint a)
+bool Polygon::isInside(QPoint a)
 {
     if (!isEnd) return false;
     if ( a.x() > minX + 1 && a.x() < maxX - 1
@@ -60,7 +70,7 @@ bool PolyLine::isInside(QPoint a)
         return true;
     return false;
 }
-void PolyLine::refreshData()
+void Polygon::refreshData()
 {
     minX = points[0]->x();
     maxX = points[0]->x();
@@ -76,19 +86,21 @@ void PolyLine::refreshData()
     centerX = (minX + maxX) / 2;
     centerY = (minY + maxY) / 2;
 }
-void PolyLine::paintShape(QPainter& p, QImage* image, bool isSave)
+void Polygon::paintShape(QPainter& p, QImage* image, bool isSave)
 {
     p.setPen(pen);
-    int num_points=points.size();
-    QPointF pts[num_points];
-    for(int i=0;i<num_points;i++)
+    for (int i = 0; i < points.size() - 1; i++)
     {
-        pts[i].setX(points[i]->x());
-        pts[i].setY(points[i]->y());
+        Line* line = new Line(points[i]->x(), points[i]->y(), points[i+1]->x(), points[i+1]->y(), LINE, rgb, pen);
+        line->paintShape(p, image, isSave);
     }
-    p.drawPolyline(pts,num_points);
+    if (isEnd)
+    {
+        Line* line = new Line(points[0]->x(), points[0]->y(), points.last()->x(), points.last()->y(), LINE, rgb, pen);
+        line->paintShape(p, image, isSave);
+    }
 }
-void PolyLine::paintFrame(QPainter& p)
+void Polygon::paintFrame(QPainter& p)
 {
     QPen curPen = p.pen();
     QPen framePen(Qt::blue, 1 ,Qt::DashDotLine, Qt::RoundCap);
@@ -103,9 +115,9 @@ void PolyLine::paintFrame(QPainter& p)
     }
     p.setPen(curPen);
 }
-void PolyLine::move(int dx, int dy)
+void Polygon::move(int dx, int dy)
 {
-    for (int i = 0; i < points.size() ; i++)
+    for (int i = 0; i < points.size() - 1; i++)
     {
         movePoint(points[i], dx, dy);
     }
