@@ -17,6 +17,8 @@ public:
         void paintShape(QPainter& p, QImage* image, bool isSave);
         void paintFrame(QPainter& p);
         void move(int dx, int dy);
+        void ovalPoints(QPainter& p,QImage* image, bool isSave, int centerX, int centerY, int x, int y);
+
         void changeColor(QPainter &p, QImage *image, bool isSave);
         double calculateInfo();
 protected:

@@ -84,30 +84,30 @@ void Line::paintShape(QPainter &p, QImage *image, bool isSave)
 {
 
 //    p.begin(image);
-    QPainter q(image);
-    q.setPen(pen);
+//    QPainter q(image);
+//    q.setPen(pen);
     p.setPen(pen);
     //DDA
-//         double dx, dy, e, x, y;
-//         dx = x2 - x1;
-//         dy = y2 - y1;
-//         e =( fabs(dx) > fabs(dy) ) ? fabs(dx) : fabs(dy);
-//         dx /= e;
-//         dy /= e;
-//         x = x1;
-//         y = y1;
-//         for (int i = 1; i <= e; i++)
-//         {
-//             int px = (int)(x + 0.5);
-//             int py = (int)(y + 0.5);
-//             p.drawPoint(px, py);
-//             if (isSave)
-//                 image->setPixel(px, py, rgb);
-//             x += dx;
-//             y += dy;
-//         }
-    p.drawLine(x1, y1, x2, y2);
-    q.drawLine(x1, y1, x2, y2);
+       double dx, dy, e, x, y;
+         dx = x2 - x1;
+         dy = y2 - y1;
+         e =( fabs(dx) > fabs(dy) ) ? fabs(dx) : fabs(dy);
+         dx /= e;
+         dy /= e;
+         x = x1;
+         y = y1;
+         for (int i = 1; i <= e; i++)
+         {
+             int px = (int)(x + 0.5);
+             int py = (int)(y + 0.5);
+             p.drawPoint(px, py);
+             if (isSave)
+                 image->setPixel(px, py, rgb);
+             x += dx;
+             y += dy;
+         }
+//    p.drawLine(x1, y1, x2, y2);
+//    q.drawLine(x1, y1, x2, y2);
 
 
 }

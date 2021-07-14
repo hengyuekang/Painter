@@ -12,6 +12,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QColorDialog>
+#include <string>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -86,6 +87,7 @@ void MainWindow::paintEvent(QPaintEvent *ev)
     {
         curShape->changeColor(p,image,true);
         isChange=false;
+        update();
     }
 }
 void MainWindow::mousePressEvent(QMouseEvent *ev)
@@ -262,6 +264,7 @@ void MainWindow::on_actionOpen_triggered()
     //        use QLabel to show a image
     ui->label->clear();
     ui->label->setPixmap(QPixmap::fromImage(*image));
+    update();
 }
 
 void MainWindow::on_action_Save_triggered()
@@ -285,6 +288,7 @@ void MainWindow::on_colorButton_clicked()
     curPen.setColor(color);
     rgb = qRgb(color.red(), color.green(), color.blue());
     qDebug() << color.name() << color.red() << color.green() << color.blue();
+    update();
 }
 
 void MainWindow::on_fillButton_clicked()
@@ -369,6 +373,7 @@ void MainWindow::on_actionMove_triggered()
 
         // 最后删除释放对话框句柄
         delete ptr;
+        update();
 }
 
 
@@ -376,5 +381,28 @@ void MainWindow::on_actionChange_triggered()
 {
     qDebug()<<"change";
     isChange=true;
+    update();
+}
+
+
+void MainWindow::on_actionLengthorarea_triggered()
+{
+    qDebug()<<"calculate length or area";
+    double res=0.0;
+    if(curShape!=NULL)
+    {
+        res=curShape->calculateInfo();
+    }
+    QString resstring=QString::number(res);
+    std::string str = resstring.toStdString();
+    const char* ch = str.c_str();
+    QMessageBox::information(this,
+        tr("length or area of current shape"),
+        tr(ch),
+        QMessageBox::Ok,
+        QMessageBox::Ok);
+    update();
+
+
 }
 

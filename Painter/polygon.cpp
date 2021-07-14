@@ -1,6 +1,7 @@
 #include "polygon.h"
 #include "line.h"
 #include "qvector.h"
+#include <algorithm>
 Polygon::Polygon()
 {
 type = POLYGON;
@@ -134,7 +135,24 @@ void Polygon::changeColor(QPainter &p, QImage *image, bool isSave)
     paintShape(p,image,isSave);
 
 }
+double angleVector(const QPoint &basic,const QPoint &curr)
+{
+    double radian = ((basic.x() * curr.x()) + (basic.y() * curr.y())) / (sqrt((basic.x() * basic.x()) + (basic.y() * basic.y())) * (sqrt((curr.x() * curr.x()) + (curr.y() * curr.y() ))));
+        return fabs((acos(radian)) * 180.0 / 3.1415926);
+}
 double Polygon::calculateInfo()
 {
-
+    QPoint basic_vector(maxX-minX,0);
+    QVector<QPoint> temp_points;
+    for(int i=0;i<points.size();i++)
+    {
+        temp_points.push_back(*(points[i]));
+    }
+    std::sort(temp_points.begin(),temp_points.end(),[basic_vector,this](const QPoint &p1,decltype(p1) p2){return angleVector(basic_vector,QPoint(p1.x()-minX,p1.y()-minY))<angleVector(basic_vector,QPoint(p2.x()-minX,p2.y()-minY));});
+    int point_num = temp_points.size();
+        if(point_num < 3)return 0.0;
+        double s = temp_points[0].y() * (temp_points[point_num-1].x() - temp_points[1].x());
+        for(int i = 1; i < point_num; ++i)
+            s += temp_points[i].y() * (temp_points[i-1].x() - temp_points[(i+1)%point_num].x());
+        return fabs(s/2.0);
 }

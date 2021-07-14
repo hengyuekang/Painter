@@ -19,7 +19,7 @@ void Fill::refreshData()
 }
 bool notEdge(QImage *image, int x, int y)
 {
-    return image->pixel(x, y) == qRgb(255, 255, 255);
+    return image->pixel(x, y) == qRgb(255,255,255);
 }
 void Fill::addPoint(QImage *image, int x, int y)
 {
@@ -47,9 +47,10 @@ void Fill::paintShape(QPainter &p, QImage *image, bool isSave)
 {
     //    Sets the painter's pen to be the given pen.
     p.setPen(pen);
-    QPainter q(image);
+//    QPainter q(image);
     QColor currcolor=p.pen().color();
     rgb=qRgb(currcolor.red(),currcolor.green(),currcolor.blue());
+    qDebug()<<currcolor;
     //    find the area to be filled
     if (points.size() < 2)
     {
@@ -67,11 +68,21 @@ void Fill::paintShape(QPainter &p, QImage *image, bool isSave)
 void Fill::changeColor(QPainter &p, QImage *image, bool isSave)
 {
     QColor color=QColor(rgb);
+
     color.setGreen(255-color.green());
     color.setRed(255-color.red());
     color.setBlue(255-color.blue());
     pen.setColor(color);
+    rgb=qRgb(color.red(),color.green(),color.blue());
     p.setPen(pen);
-    paintShape(p,image,isSave);
+    qDebug()<<pen.color();
+    for (int i = 0; i < points.size(); i++)
+    {
+        //        Draws a single point at the given position using the current pen's color
+        p.drawPoint(points[i]->x(), points[i]->y());
+//        q.drawPoint(points[i]->x(), points[i]->y());
+        if (isSave)
+            image->setPixel(points[i]->x(), points[i]->y(), rgb);
+    }
 
 }

@@ -46,6 +46,8 @@ private slots:
 
         void on_actionChange_triggered();
 
+        void on_actionLengthorarea_triggered();
+
 private:
     Ui::MainWindow *ui;
 //    all the shapes

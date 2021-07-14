@@ -158,11 +158,6 @@
     <string>LengthorArea</string>
    </property>
   </action>
-  <action name="actionArea">
-   <property name="text">
-    <string>Area</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

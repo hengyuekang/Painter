@@ -128,7 +128,7 @@ void Rectangle::changeColor(QPainter &p, QImage *image, bool isSave)
 }
 double Rectangle::calculateInfo()
 {
-    double width=abs(maxX-minX);
-    double length=abs(maxY-minY);
+    double width=fabs(maxX-minX);
+    double length=fabs(maxY-minY);
     return width*length;
 }

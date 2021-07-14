@@ -25,7 +25,7 @@ void Shape::setPoint(QPoint *point, QPoint a)
 }
 bool Shape::isAroundPoint(QPoint *point, QPoint a)
 {
-    if (fabs(point->x() - a.x()) < 2 && fabs(point->y() - a.y()) < 2)
+    if (fabs(point->x() - a.x()) < 5 && fabs(point->y() - a.y()) < 5)
         return true;
     return false;
 }

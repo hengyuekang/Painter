@@ -84,18 +84,62 @@ void Oval::refreshData()
     ra = (maxX - minX) / 2;
     rb = (maxY - minY) / 2;
 }
+void Oval::ovalPoints(QPainter& p,QImage* image, bool isSave, int centerX, int centerY, int x, int y)
+{
+    p.drawPoint(x + centerX, y + centerY);
+    p.drawPoint(-x + centerX, y + centerY);
+    p.drawPoint(x + centerX, -y + centerY);
+    p.drawPoint(-x + centerX, -y + centerY);
+    if (isSave)
+    {
+        image->setPixel(x + centerX, y + centerY, rgb);
+        image->setPixel(-x + centerX, y + centerY, rgb);
+        image->setPixel(x + centerX, -y + centerY, rgb);
+        image->setPixel(-x + centerX, -y + centerY, rgb);
+    }
+}
 void Oval::paintShape(QPainter& p, QImage* image, bool isSave)
 {
 
 //    p.begin(image);
 
-    QPainter q(image);
-    q.setPen(pen);
     p.setPen(pen);
+    int x = 0, y = rb;
+    ovalPoints(p, image, isSave, centerX, centerY, x, y);
 
-    QPoint center(centerX,centerY);
-    p.drawEllipse(center,ra,rb);
-    q.drawEllipse(center,ra,rb);
+    double d1 = pow(rb, 2) - pow(ra, 2) * rb + 0.25 * pow(ra, 2);
+    while ( pow(ra,2) * (y - 0.5) > pow(rb, 2) * (x + 1) )
+    {
+        //在区域一
+        if (d1 < 0) //选择E点
+        {
+            d1 += pow(rb, 2)*(2 * x + 3);
+        }
+        else          //选择SE点
+        {
+            d1 += pow(rb, 2)*(2 * x + 3) + pow(ra, 2)*(-2 * y + 2);
+            y--;
+        }
+        x++;
+        ovalPoints(p, image, isSave, centerX, centerY, x, y);
+
+    }
+
+    double d2 = pow(rb, 2) * pow(x + 0.5, 2) + pow(ra, 2) * pow(y - 1, 2) - pow(ra * rb, 2);
+    while (y > 0)       //区域二
+    {
+        if (d2 < 0)       //选择SE点
+        {
+            d2 += pow(rb, 2) * (2 * x + 2) + pow(ra, 2)*(-2 * y + 3);
+            x++;
+        }
+        else
+        {
+            d2 += pow(ra, 2) * (-2 * y + 3);
+        }
+        y--;
+        ovalPoints(p, image, isSave, centerX, centerY, x, y);
+    }
 
 
 }
