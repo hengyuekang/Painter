@@ -82,27 +82,34 @@ void Line::refreshData()
 }
 void Line::paintShape(QPainter &p, QImage *image, bool isSave)
 {
+
+//    p.begin(image);
+    QPainter q(image);
+    q.setPen(pen);
     p.setPen(pen);
     //DDA
-    //     double dx, dy, e, x, y;
-    //     dx = x2 - x1;
-    //     dy = y2 - y1;
-    //     e =( fabs(dx) > fabs(dy) ) ? fabs(dx) : fabs(dy);
-    //     dx /= e;
-    //     dy /= e;
-    //     x = x1;
-    //     y = y1;
-    //     for (int i = 1; i <= e; i++)
-    //     {
-    //         int px = (int)(x + 0.5);
-    //         int py = (int)(y + 0.5);
-    //         p.drawPoint(px, py);
-    //         if (isSave)
-    //             image->setPixel(px, py, rgb);
-    //         x += dx;
-    //         y += dy;
-    //     }
+//         double dx, dy, e, x, y;
+//         dx = x2 - x1;
+//         dy = y2 - y1;
+//         e =( fabs(dx) > fabs(dy) ) ? fabs(dx) : fabs(dy);
+//         dx /= e;
+//         dy /= e;
+//         x = x1;
+//         y = y1;
+//         for (int i = 1; i <= e; i++)
+//         {
+//             int px = (int)(x + 0.5);
+//             int py = (int)(y + 0.5);
+//             p.drawPoint(px, py);
+//             if (isSave)
+//                 image->setPixel(px, py, rgb);
+//             x += dx;
+//             y += dy;
+//         }
     p.drawLine(x1, y1, x2, y2);
+    q.drawLine(x1, y1, x2, y2);
+
+
 }
 void Line::paintFrame(QPainter &p)
 {
@@ -122,4 +129,19 @@ void Line::move(int dx, int dy)
     for (int i = 0; i < points.size(); i++)
         movePoint(points[i], dx, dy);
     refreshData();
+}
+void Line::changeColor(QPainter &p, QImage *image, bool isSave)
+{
+    QColor color=QColor(rgb);
+    color.setGreen(255-color.green());
+    color.setRed(255-color.red());
+    color.setBlue(255-color.blue());
+    pen.setColor(color);
+    p.setPen(pen);
+    paintShape(p,image,isSave);
+
+}
+double Line::calculateInfo()
+{
+    return sqrt(pow(x1-x2,2)+pow(y1-y2,2));
 }

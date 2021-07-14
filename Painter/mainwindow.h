@@ -26,6 +26,26 @@ private slots:
 
         void on_actionOpen_triggered();
 
+        void on_action_Save_triggered();
+
+        void on_colorButton_clicked();
+
+        void on_fillButton_clicked();
+
+        void on_actionLine_triggered();
+
+        void on_action_PolyLine_triggered();
+
+        void on_actionRectangle_triggered();
+
+        void on_actionOval_triggered();
+
+        void on_actionPolygon_triggered();
+
+        void on_actionMove_triggered();
+
+        void on_actionChange_triggered();
+
 private:
     Ui::MainWindow *ui;
 //    all the shapes
@@ -40,7 +60,7 @@ private:
         QImage img;
         QRgb rgb;
         bool isSave;
-            QString saveFileName;
+        QString saveFileName;
 
 //            edit shape
             QPoint* editPos;
@@ -49,6 +69,10 @@ private:
                 QPoint* startPos;
                 QPoint* endPos;
                 bool isMove;
+//  move shape
+    int dx,dy;
+//    change the color of curr shape
+    bool isChange;
 
 
 

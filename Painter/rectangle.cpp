@@ -115,3 +115,20 @@ void Rectangle::move(int dx, int dy)
     }
     refreshData();
 }
+void Rectangle::changeColor(QPainter &p, QImage *image, bool isSave)
+{
+    QColor color=QColor(rgb);
+    color.setGreen(255-color.green());
+    color.setRed(255-color.red());
+    color.setBlue(255-color.blue());
+    pen.setColor(color);
+    p.setPen(pen);
+    paintShape(p,image,isSave);
+
+}
+double Rectangle::calculateInfo()
+{
+    double width=abs(maxX-minX);
+    double length=abs(maxY-minY);
+    return width*length;
+}

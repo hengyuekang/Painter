@@ -86,9 +86,18 @@ void Oval::refreshData()
 }
 void Oval::paintShape(QPainter& p, QImage* image, bool isSave)
 {
+
+//    p.begin(image);
+
+    QPainter q(image);
+    q.setPen(pen);
     p.setPen(pen);
+
     QPoint center(centerX,centerY);
     p.drawEllipse(center,ra,rb);
+    q.drawEllipse(center,ra,rb);
+
+
 }
 void Oval::paintFrame(QPainter& p)
 {
@@ -111,4 +120,18 @@ void Oval::move(int dx, int dy)
     }
     refreshData();
 }
+void Oval::changeColor(QPainter &p, QImage *image, bool isSave)
+{
+    QColor color=QColor(rgb);
+    color.setGreen(255-color.green());
+    color.setRed(255-color.red());
+    color.setBlue(255-color.blue());
+    pen.setColor(color);
+    p.setPen(pen);
+    paintShape(p,image,isSave);
 
+}
+double Oval::calculateInfo()
+{
+    return 3.1415926*ra*rb;
+}

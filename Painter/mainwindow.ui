@@ -59,6 +59,9 @@
      <string>Color</string>
     </property>
    </widget>
+   <zorder>label</zorder>
+   <zorder>colorButton</zorder>
+   <zorder>fillButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -93,8 +96,7 @@
     </property>
     <addaction name="actionMove"/>
     <addaction name="actionChange"/>
-    <addaction name="actionLength"/>
-    <addaction name="actionArea"/>
+    <addaction name="actionLengthorarea"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -151,9 +153,9 @@
     <string>Change</string>
    </property>
   </action>
-  <action name="actionLength">
+  <action name="actionLengthorarea">
    <property name="text">
-    <string>Length</string>
+    <string>LengthorArea</string>
    </property>
   </action>
   <action name="actionArea">

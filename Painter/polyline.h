@@ -21,7 +21,10 @@ public:
     void refreshData();
     void paintShape(QPainter& p, QImage* image, bool isSave);
     void paintFrame(QPainter& p);
+    void changeColor(QPainter &p, QImage *image, bool isSave);
+
     void move(int dx, int dy);
+    double calculateInfo();
 private:
     bool isEnd ;
 

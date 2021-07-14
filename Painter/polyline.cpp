@@ -1,5 +1,5 @@
 #include "polyline.h"
-
+#include "line.h"
 PolyLine::PolyLine()
 {
     type=POLYLINE;
@@ -16,7 +16,8 @@ PolyLine::PolyLine(QVector<QPoint*> points, ShapeType type, QRgb rgb, QPen pen)
 PolyLine::~PolyLine() {}
 void PolyLine::setPoint(QPoint a)
 {
-    while (points.size() < 1) //delete
+//    start point
+    while (points.size() < 1)
         {
             QPoint* newP = new QPoint;
             points.append(newP);
@@ -27,7 +28,18 @@ void PolyLine::setPoint(QPoint a)
 }
 void PolyLine::setEndPoint(QPoint a)
 {
-    isEnd=true;
+    if (points.size() > 2 && isAroundPoint(points[points.size()-2], a))
+        {
+            isEnd = true;
+            points.last() = points[points.size()-2];
+        }
+        else
+        {
+            points.last()->setX(a.x());
+            points.last()->setY(a.y());
+            startNewLine(a);
+        }
+        refreshData();
 }
 void PolyLine::startNewLine(QPoint a)
 {
@@ -78,15 +90,16 @@ void PolyLine::refreshData()
 }
 void PolyLine::paintShape(QPainter& p, QImage* image, bool isSave)
 {
+//    p.begin(image);
+
     p.setPen(pen);
-    int num_points=points.size();
-    QPointF pts[num_points];
-    for(int i=0;i<num_points;i++)
-    {
-        pts[i].setX(points[i]->x());
-        pts[i].setY(points[i]->y());
-    }
-    p.drawPolyline(pts,num_points);
+    for (int i = 0; i < points.size() - 1; i++)
+        {
+            Line* line = new Line(points[i]->x(), points[i]->y(), points[i+1]->x(), points[i+1]->y(), LINE, rgb, pen);
+            line->paintShape(p, image, isSave);
+        }
+
+
 }
 void PolyLine::paintFrame(QPainter& p)
 {
@@ -110,4 +123,25 @@ void PolyLine::move(int dx, int dy)
         movePoint(points[i], dx, dy);
     }
     refreshData();
+}
+void PolyLine::changeColor(QPainter &p, QImage *image, bool isSave)
+{
+    QColor color=QColor(rgb);
+    color.setGreen(255-color.green());
+    color.setRed(255-color.red());
+    color.setBlue(255-color.blue());
+    pen.setColor(color);
+    p.setPen(pen);
+    paintShape(p,image,isSave);
+
+}
+double PolyLine::calculateInfo()
+{
+    double res=0.0;
+    for (int i = 0; i < points.size() - 1; i++)
+        {
+            Line* line = new Line(points[i]->x(), points[i]->y(), points[i+1]->x(), points[i+1]->y(), LINE, rgb, pen);
+            res+=line->calculateInfo();
+        }
+    return res;
 }

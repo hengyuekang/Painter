@@ -48,7 +48,8 @@ public:
     void movePoint(QPoint *point, int dx, int dy);
     //    move the whole shape
     virtual void move(int dx, int dy);
-
+    virtual void changeColor(QPainter &p, QImage *image, bool isSave);
+    virtual double calculateInfo();
 protected:
     ShapeType type;
     QVector<QPoint *> points;

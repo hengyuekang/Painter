@@ -12,7 +12,7 @@ public:
     //    add points of area to fill
     void addPoint(QImage *image, int x, int y);
     void paintShape(QPainter &p, QImage *image, bool isSave);
-
+    void changeColor(QPainter &p, QImage *image, bool isSave);
 private:
     QVector<QVector<QPoint *>> lines;
 };
