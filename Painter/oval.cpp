@@ -104,42 +104,15 @@ void Oval::paintShape(QPainter& p, QImage* image, bool isSave)
 //    p.begin(image);
 
     p.setPen(pen);
-    int x = 0, y = rb;
-    ovalPoints(p, image, isSave, centerX, centerY, x, y);
-
-    double d1 = pow(rb, 2) - pow(ra, 2) * rb + 0.25 * pow(ra, 2);
-    while ( pow(ra,2) * (y - 0.5) > pow(rb, 2) * (x + 1) )
+    p.drawEllipse(QPoint(centerX,centerY),ra,rb);
+    if(isSave)
     {
-        //在区域一
-        if (d1 < 0) //选择E点
-        {
-            d1 += pow(rb, 2)*(2 * x + 3);
-        }
-        else          //选择SE点
-        {
-            d1 += pow(rb, 2)*(2 * x + 3) + pow(ra, 2)*(-2 * y + 2);
-            y--;
-        }
-        x++;
-        ovalPoints(p, image, isSave, centerX, centerY, x, y);
-
+        QPainter q(image);
+        q.setPen(pen);
+        q.drawEllipse(QPoint(centerX,centerY),ra,rb);
     }
 
-    double d2 = pow(rb, 2) * pow(x + 0.5, 2) + pow(ra, 2) * pow(y - 1, 2) - pow(ra * rb, 2);
-    while (y > 0)       //区域二
-    {
-        if (d2 < 0)       //选择SE点
-        {
-            d2 += pow(rb, 2) * (2 * x + 2) + pow(ra, 2)*(-2 * y + 3);
-            x++;
-        }
-        else
-        {
-            d2 += pow(ra, 2) * (-2 * y + 3);
-        }
-        y--;
-        ovalPoints(p, image, isSave, centerX, centerY, x, y);
-    }
+
 
 
 }
