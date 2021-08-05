@@ -4,27 +4,27 @@ Oval::Oval()
 {
     type = OVAL;
 }
-Oval::Oval(QVector<QPoint*> points, ShapeType type, QRgb rgb, QPen pen)
+Oval::Oval(QVector<QPoint *> points, ShapeType type, QRgb rgb, QPen pen)
 {
     this->points = points;
     this->type = type;
     this->rgb = rgb;
     this->pen = pen;
-    refreshData();
+    updateInfo();
 }
 Oval::~Oval() {}
-void Oval::setPoint(QPoint a)
+void Oval::setStartPoint(QPoint a)
 {
     while (points.size() < 4)
     {
-        QPoint* newP = new QPoint;
+        QPoint *newP = new QPoint;
         points.push_back(newP);
     }
     points[2]->setX(a.x());
     points[2]->setY(a.y());
-    refreshData();
+    updateInfo();
 }
-QPoint* Oval::isAround(QPoint a)
+QPoint *Oval::pointAround(QPoint a)
 {
     for (int i = 0; i < points.size(); i++)
     {
@@ -33,14 +33,7 @@ QPoint* Oval::isAround(QPoint a)
     }
     return NULL;
 }
-bool Oval::isInside(QPoint a)
-{
-    if ( a.x() > minX + 1 && a.x() < maxX - 1
-            && a.y() > minY + 1 && a.y() < maxY - 1 )
-        return true;
-    return false;
-}
-void Oval::refreshData()
+void Oval::updateInfo()
 {
     x1 = points[0]->x();
     y1 = points[0]->y();
@@ -68,65 +61,49 @@ void Oval::refreshData()
         x4 = points[3]->x();
         y4 = points[3]->y();
     }
-    minX = points[0]->x();
-    maxX = points[0]->x();
-    minY = points[0]->y();
-    maxY = points[0]->y();
+    xmin = points[0]->x();
+    xmax = points[0]->x();
+    ymin = points[0]->y();
+    ymax = points[0]->y();
     for (int i = 0; i < points.size(); i++)
     {
-        if (points[i]->x() > maxX) maxX = points[i]->x();
-        if (points[i]->x() < minX) minX = points[i]->x();
-        if (points[i]->y() > maxY) maxY = points[i]->y();
-        if (points[i]->y() < minY) minY = points[i]->y();
+        if (points[i]->x() > xmax)
+            xmax = points[i]->x();
+        if (points[i]->x() < xmin)
+            xmin = points[i]->x();
+        if (points[i]->y() > ymax)
+            ymax = points[i]->y();
+        if (points[i]->y() < ymin)
+            ymin = points[i]->y();
     }
-    centerX = (minX + maxX) / 2;
-    centerY = (minY + maxY) / 2;
-    ra = (maxX - minX) / 2;
-    rb = (maxY - minY) / 2;
+    center_x = (xmin + xmax) / 2;
+    center_y = (ymin + ymax) / 2;
+    ra = (xmax - xmin) / 2;
+    rb = (ymax - ymin) / 2;
 }
-void Oval::ovalPoints(QPainter& p,QImage* image, bool isSave, int centerX, int centerY, int x, int y)
+void Oval::paintShape(QPainter &p, QImage *image, bool isSave)
 {
-    p.drawPoint(x + centerX, y + centerY);
-    p.drawPoint(-x + centerX, y + centerY);
-    p.drawPoint(x + centerX, -y + centerY);
-    p.drawPoint(-x + centerX, -y + centerY);
-    if (isSave)
-    {
-        image->setPixel(x + centerX, y + centerY, rgb);
-        image->setPixel(-x + centerX, y + centerY, rgb);
-        image->setPixel(x + centerX, -y + centerY, rgb);
-        image->setPixel(-x + centerX, -y + centerY, rgb);
-    }
-}
-void Oval::paintShape(QPainter& p, QImage* image, bool isSave)
-{
-
-//    p.begin(image);
 
     p.setPen(pen);
-    p.drawEllipse(QPoint(centerX,centerY),ra,rb);
-    if(isSave)
+    p.drawEllipse(QPoint(center_x, center_y), ra, rb);
+    if (isSave)
     {
         QPainter q(image);
         q.setPen(pen);
-        q.drawEllipse(QPoint(centerX,centerY),ra,rb);
+        q.drawEllipse(QPoint(center_x, center_y), ra, rb);
     }
-
-
-
-
 }
-void Oval::paintFrame(QPainter& p)
+void Oval::paintFrame(QPainter &p)
 {
     QPen curPen = p.pen();
-    QPen framePen(Qt::blue, 1 ,Qt::DashDotLine, Qt::RoundCap);
+    QPen framePen(Qt::blue, 1, Qt::DashDotLine, Qt::RoundCap);
     p.setPen(framePen);
     p.drawLine(x1, y1, x2, y2);
     p.drawLine(x2, y2, x3, y3);
     p.drawLine(x3, y3, x4, y4);
     p.drawLine(x4, y4, x1, y1);
-    paintVertex(p, x1, y1);
-    paintVertex(p, x3, y3);
+    highlightPoint(p, x1, y1);
+    highlightPoint(p, x3, y3);
     p.setPen(curPen);
 }
 void Oval::move(int dx, int dy)
@@ -135,20 +112,19 @@ void Oval::move(int dx, int dy)
     {
         movePoint(points[i], dx, dy);
     }
-    refreshData();
+    updateInfo();
 }
 void Oval::changeColor(QPainter &p, QImage *image, bool isSave)
 {
-    QColor color=QColor(rgb);
-    color.setGreen(255-color.green());
-    color.setRed(255-color.red());
-    color.setBlue(255-color.blue());
+    QColor color = QColor(rgb);
+    color.setGreen(255 - color.green());
+    color.setRed(255 - color.red());
+    color.setBlue(255 - color.blue());
     pen.setColor(color);
     p.setPen(pen);
-    paintShape(p,image,isSave);
-
+    paintShape(p, image, isSave);
 }
 double Oval::calculateInfo()
 {
-    return 3.1415926*ra*rb;
+    return 3.1415926 * ra * rb;
 }

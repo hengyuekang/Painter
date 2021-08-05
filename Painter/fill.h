@@ -8,11 +8,13 @@ public:
     Fill();
     Fill(QVector<QPoint *> points, ShapeType type, QRgb rgb, QPen pen);
     ~Fill();
-    void refreshData();
     //    add points of area to fill
-    void addPoint(QImage *image, int x, int y);
+
     void paintShape(QPainter &p, QImage *image, bool isSave);
     void changeColor(QPainter &p, QImage *image, bool isSave);
+
+    void addFillPoint(QImage *image, int x, int y);
+
 private:
     QVector<QVector<QPoint *>> lines;
 };

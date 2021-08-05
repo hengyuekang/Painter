@@ -2,30 +2,30 @@
 #define POLYGON_H
 #include "shape.h"
 
-
 class Polygon : public Shape
 {
 public:
     Polygon();
-    Polygon(QVector<QPoint*> points, ShapeType type, QRgb rgb, QPen pen);
-        ~Polygon();
+    Polygon(QVector<QPoint *> points, ShapeType type, QRgb rgb, QPen pen);
+    ~Polygon();
 
-        void setPoint(QPoint a);
-        void setEndPoint(QPoint a);
-        void startNewLine(QPoint a);
+    void setStartPoint(QPoint a);
+    void setEndPoint(QPoint a);
+    void startNewLine(QPoint a);
 
-        bool isPolyEnd();
-        QPoint* isAround(QPoint a);
-        bool isInside(QPoint a);
-        void refreshData();
+    bool isPolyEnd();
+    QPoint *pointAround(QPoint a);
+    //        bool isInside(QPoint a);
+    void updateInfo();
 
-        void paintShape(QPainter& p, QImage* image, bool isSave);
-        void paintFrame(QPainter& p);
-        void changeColor(QPainter &p, QImage *image, bool isSave);
-        void move(int dx, int dy);
-        double calculateInfo();
+    void paintShape(QPainter &p, QImage *image, bool isSave);
+    void paintFrame(QPainter &p);
+    void changeColor(QPainter &p, QImage *image, bool isSave);
+    void move(int dx, int dy);
+    double calculateInfo();
+
 private:
-    bool isEnd ;
+    bool isEnd;
 };
 
 #endif // POLYGON_H

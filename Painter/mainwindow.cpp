@@ -13,6 +13,8 @@
 #include <QMessageBox>
 #include <QColorDialog>
 #include <string>
+#define WIDTH 700
+#define HEIGHT 500
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -20,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
     curShapeType = BLANK;
     curShape = NULL;
     //        The image is stored using a 24-bit RGB format (8-8-8).
-    image = new QImage(700, 500, QImage::Format_RGB888);
-    img = QImage(700, 500, QImage::Format_RGB888);
+    image = new QImage(WIDTH, HEIGHT, QImage::Format_RGB888);
+//    img = QImage(WIDTH, HEIGHT, QImage::Format_RGB888);
     rgb = qRgb(0, 0, 0);
     isSave = false;
     //      white background
@@ -33,10 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
     editPos = NULL;
     isEdit = false;
     //                    paint
-    startPos = NULL;
-    endPos = NULL;
     isMove = false;
-    isChange=false;
+    isChange = false;
 }
 
 MainWindow::~MainWindow()
@@ -52,13 +52,13 @@ void MainWindow::paintEvent(QPaintEvent *ev)
             for (int j = 0; j < image->height(); j++)
                 image->setPixel(i, j, bgRgb);
     }
-    //TODO:or choose the image?
     QPainter p(this);
     p.setPen(curPen);
 
-    //one is choosen,paint all the shapes on the image
+    //begin to paint a shape
     if (curShape != NULL)
     {
+//        other shapes
         for (int i = 0; i < shapes.size() - 1; i++)
         {
             shapes[i]->paintShape(p, image, true);
@@ -79,82 +79,71 @@ void MainWindow::paintEvent(QPaintEvent *ev)
         image->save(saveFileName);
         isSave = false;
     }
-    if (isEdit)
+    if (isEdit&& curShape != NULL)
     {
         curShape->paintFrame(p);
     }
-    if(isChange&&isEdit&&curShape!=NULL)
+    if (isChange && isEdit && curShape != NULL)
     {
-        curShape->changeColor(p,image,true);
-        isChange=false;
+        curShape->changeColor(p, image, true);
+        isChange = false;
         update();
     }
 }
 void MainWindow::mousePressEvent(QMouseEvent *ev)
 {
-    //    still painting
-    if (curShape != NULL && isEdit && curShape->isAround(ev->pos()) != NULL) //edit point
+    // exit shape using a point
+    if (curShape != NULL && isEdit && curShape->pointAround(ev->pos()) != NULL) //edit shape
     {
-        editPos = curShape->isAround(ev->pos());
-    }
-    else if (curShape != NULL && isEdit && curShape->isInside(ev->pos())) //move
-    {
-        isMove = true;
-        startPos = new QPoint;
-        startPos->setX(ev->pos().x());
-        startPos->setY(ev->pos().y());
+        editPos = curShape->pointAround(ev->pos());
     }
     else
     {
+        //        a new shape
         QVector<QPoint *> points;
         QPoint *evPos = new QPoint(ev->pos());
         points.push_back(evPos);
-        Line *line = new Line(points, curShapeType, rgb, curPen);
-        Rectangle *rectangle = new Rectangle(points, curShapeType, rgb, curPen);
-        Oval *oval = new Oval(points, curShapeType, rgb, curPen);
-        PolyLine *polyline = new PolyLine(points, curShapeType, rgb, curPen);
-        Polygon *polygon = new Polygon(points, curShapeType, rgb, curPen);
-        Fill *fill = new Fill(points, curShapeType, rgb, curPen);
         switch (curShapeType)
         {
         case LINE:
-            shapes.append(line);
-            curShape = line;
+            curShape = new Line(points, curShapeType, rgb, curPen);
+            shapes.append(curShape);
             break;
         case RECTANGLE:
-            shapes.append(rectangle);
-            curShape = rectangle;
+            curShape= new Rectangle(points, curShapeType, rgb, curPen);
+            shapes.append(curShape);
             break;
         case OVAL:
-            shapes.append(oval);
-            curShape = oval;
+            curShape= new Oval(points, curShapeType, rgb, curPen);
+            shapes.append(curShape);
             break;
         case POLYGON:
+//            not end
             if (curShape != NULL && curShape->getType() == POLYGON && !((Polygon *)curShape)->isPolyEnd())
             {
-                curShape->setPoint(ev->pos());
+                curShape->setStartPoint(ev->pos());
             }
             else
             {
-                shapes.append(polygon);
-                polygon->startNewLine(ev->pos());
-                curShape = polygon;
+                curShape=new Polygon(points, curShapeType, rgb, curPen);
+                shapes.append(curShape);
+                curShape->startNewLine(ev->pos());
             }
             break;
         case FILL:
-            shapes.append(fill);
-            curShape = fill;
+            curShape=new Fill(points, curShapeType, rgb, curPen);
+            shapes.append(curShape);
             break;
         case POLYLINE:
             if (curShape != NULL && curShape->getType() == POLYLINE && !((PolyLine *)curShape)->isPolyLineEnd())
             {
-                curShape->setPoint(ev->pos());
+                curShape->setStartPoint(ev->pos());
             }
             else
             {
-                shapes.append(polyline);
-                polyline->startNewLine(ev->pos());
-                curShape = polyline;
+                curShape=new PolyLine(points, curShapeType, rgb, curPen);
+                shapes.append(curShape);
+                curShape->startNewLine(ev->pos());
             }
             break;
         default:
@@ -162,33 +151,23 @@ void MainWindow::mousePressEvent(QMouseEvent *ev)
         }
 
         isEdit = false;
-        isMove = false;
     }
     update();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *ev)
 {
-        if (isMove)
-        {
-            if (endPos == NULL)
-                endPos = new QPoint;
-            endPos->setX(ev->pos().x());
-            endPos->setY(ev->pos().y());
-            curShape->move(dx, dy);
-            startPos->setX(ev->pos().x());
-            startPos->setY(ev->pos().y());
-        }
-    else if (editPos != NULL)
+
+    if (editPos != NULL)
     {
-        //        update new position
         curShape->setPoint(editPos, ev->pos());
     }
     else
     {
+//        paint the shape
         if (curShape != NULL)
         {
-            curShape->setPoint(ev->pos());
+            curShape->setStartPoint(ev->pos());
         }
     }
     update();
@@ -197,20 +176,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev)
 void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
 {
 
-        if (isMove)
-        {
-            isMove = false;
-            if (endPos == NULL)
-                endPos = new QPoint;
-            endPos->setX(ev->pos().x());
-            endPos->setY(ev->pos().y());
-            curShape->move(dx, dy);
-            startPos = NULL;
-            endPos = NULL;
-        }
-    else if (editPos != NULL)
+    if (editPos != NULL)
     {
-        curShape->setPoint(editPos, ev->pos());
+//        curShape->setPoint(editPos,ev->pos());
         editPos = NULL;
     }
     else
@@ -223,13 +191,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
             else if (curShape->getType() == POLYLINE)
                 ((PolyLine *)curShape)->setEndPoint(ev->pos());
             else
-                curShape->setPoint(ev->pos());
+                curShape->setStartPoint(ev->pos());
 
             if (curShape->getType() == POLYGON && !((Polygon *)curShape)->isPolyEnd())
                 isEdit = false;
             else if (curShape->getType() == POLYLINE && !((PolyLine *)curShape)->isPolyLineEnd())
                 isEdit = false;
             else
+//                painting ends
                 isEdit = true;
         }
     }
@@ -353,56 +322,50 @@ void MainWindow::on_actionPolygon_triggered()
 
 void MainWindow::on_actionMove_triggered()
 {
-    isMove=true;
+    isMove = true;
     qDebug() << "move";
     moveDialog *ptr = new moveDialog(this);
-//    input something
-        Qt::WindowFlags flags = ptr->windowFlags();
-//        dialog:fixedsize
-        ptr->setWindowFlags(flags | Qt::MSWindowsFixedSizeDialogHint);
+    //    input something
+    Qt::WindowFlags flags = ptr->windowFlags();
+    //        dialog:fixed size
+    ptr->setWindowFlags(flags | Qt::MSWindowsFixedSizeDialogHint);
 
-        int ref = ptr->exec();             // 以模态方式显示对话框
-        if (ref==QDialog::Accepted)        // OK键被按下,对话框关闭
-        {
-            // 当BtnOk被按下时,则设置对话框中的数据
-            dx=ptr->getdx();
-            dy=ptr->getdy();
-            qDebug()<<dx<<dy;
-            curShape->move(dx,dy);
-        }
+    int ref = ptr->exec();
+    if (ref == QDialog::Accepted)
+    {
+        dx = ptr->getdx();
+        dy = ptr->getdy();
+        qDebug() << dx << dy;
+        curShape->move(dx, dy);
+    }
 
-        // 最后删除释放对话框句柄
-        delete ptr;
-        update();
+    delete ptr;
+    update();
 }
-
 
 void MainWindow::on_actionChange_triggered()
 {
-    qDebug()<<"change";
-    isChange=true;
+    qDebug() << "change";
+    isChange = true;
     update();
 }
 
-
 void MainWindow::on_actionLengthorarea_triggered()
 {
-    qDebug()<<"calculate length or area";
-    double res=0.0;
-    if(curShape!=NULL)
+    qDebug() << "calculate length or area";
+    double res = 0.0;
+    if (curShape != NULL)
     {
-        res=curShape->calculateInfo();
+        res = curShape->calculateInfo();
     }
-    QString resstring=QString::number(res);
+    QString resstring = QString::number(res);
     std::string str = resstring.toStdString();
-    const char* ch = str.c_str();
+    const char *ch = str.c_str();
     QMessageBox::information(this,
-        tr("length or area of current shape"),
-        tr(ch),
-        QMessageBox::Ok,
-        QMessageBox::Ok);
+                             tr("length or area of current shape"),
+                             tr(ch),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok);
     update();
-
-
 }
 

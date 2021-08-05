@@ -1,5 +1,11 @@
 #ifndef SHAPE_H
 #define SHAPE_H
+#include <QVector>
+#include <QPoint>
+#include <QPainter>
+#include <cmath>
+#include <QDebug>
+#define ERROR 5
 enum ShapeType
 {
     BLANK,
@@ -8,54 +14,48 @@ enum ShapeType
     RECTANGLE,
     OVAL,
     POLYGON,
-    PEN,
     FILL,
-    FILLRECT,
-    FILLOVAL,
-    FILLPOLY
-};
-#include <QVector>
-#include <QPoint>
-#include <QPainter>
-#include <cmath>
-#include <QDebug>
 
+};
 class Shape
 {
 public:
     Shape();
-    Shape(QVector<QPoint *> points, ShapeType type, QRgb rgb, QPen pen);
+    Shape(QVector<QPoint *> points, ShapeType type, QRgb color, QPen pen);
     ~Shape();
-    //    update info
-    virtual void refreshData();
+    virtual void updateInfo();
     ShapeType getType() const;
-    //    change the point for control using point a
-    virtual void setPoint(QPoint a);
+    virtual void setStartPoint(QPoint a);
+    //    *point==a
     void setPoint(QPoint *point, QPoint a);
-    //    whether a is on one of points(<=1 error)
+    //  to end painting
     bool isAroundPoint(QPoint *point, QPoint a);
     //    find a Point around a
-    virtual QPoint *isAround(QPoint a);
-    //    whether a is inside the shape according to min and max
-    virtual bool isInside(QPoint a);
+    virtual QPoint *pointAround(QPoint a);
+    //    virtual bool isInside(QPoint a);
+    //    whether inside of frame
+    bool isInside(QPoint a);
     //    paint the shape
     virtual void paintShape(QPainter &p, QImage *image, bool isSave);
-    //    make the point of shape more obvious
-    void paintVertex(QPainter &p, int x, int y);
-    //    paint a rectangle for the whole shape making it easier to know the frame
+    //    make the point more obvious
+    void highlightPoint(QPainter &p, int x, int y);
+    //    frame of shape
     virtual void paintFrame(QPainter &p);
     //    change the position of one point using dx and dy
     void movePoint(QPoint *point, int dx, int dy);
-    //    move the whole shape
     virtual void move(int dx, int dy);
     virtual void changeColor(QPainter &p, QImage *image, bool isSave);
     virtual double calculateInfo();
+//    for POLYGON and polyline
+    virtual void startNewLine(QPoint a);
+
+
 protected:
     ShapeType type;
     QVector<QPoint *> points;
     //    center=(min+max)/2
-    int centerX, centerY;
-    int minX, maxX, minY, maxY;
+    int center_x, center_y;
+    int xmin, xmax, ymin, ymax;
     //     color of pen
     QRgb rgb;
     QPen pen;

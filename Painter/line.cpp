@@ -10,7 +10,7 @@ Line::Line(QVector<QPoint *> points, ShapeType type, QRgb rgb, QPen pen)
     this->type = type;
     this->rgb = rgb;
     this->pen = pen;
-    refreshData();
+    updateInfo();
 }
 Line::Line(int x1, int y1, int x2, int y2, ShapeType type, QRgb rgb, QPen pen)
 {
@@ -21,10 +21,10 @@ Line::Line(int x1, int y1, int x2, int y2, ShapeType type, QRgb rgb, QPen pen)
     this->type = type;
     this->rgb = rgb;
     this->pen = pen;
-    refreshData();
+    updateInfo();
 }
 Line::~Line() {}
-void Line::setPoint(QPoint a)
+void Line::setStartPoint(QPoint a)
 {
     while (points.size() < 2)
     {
@@ -33,9 +33,9 @@ void Line::setPoint(QPoint a)
     }
     points[1]->setX(a.x());
     points[1]->setY(a.y());
-    refreshData();
+    updateInfo();
 }
-QPoint *Line::isAround(QPoint a)
+QPoint *Line::pointAround(QPoint a)
 {
     if (isAroundPoint(points[0], a))
         return points[0];
@@ -43,13 +43,13 @@ QPoint *Line::isAround(QPoint a)
         return points[1];
     return NULL;
 }
-bool Line::isInside(QPoint a)
-{
-    if (a.x() > minX + 1 && a.x() < maxX - 1 && a.y() > minY + 1 && a.y() < maxY - 1)
-        return true;
-    return false;
-}
-void Line::refreshData()
+//bool Line::isInside(QPoint a)
+//{
+//    if (a.x() > minX + 1 && a.x() < maxX - 1 && a.y() > minY + 1 && a.y() < maxY - 1)
+//        return true;
+//    return false;
+//}
+void Line::updateInfo()
 {
     if (points.size() == 0)
         return;
@@ -59,45 +59,39 @@ void Line::refreshData()
     y2 = points.last()->y();
     if (x1 > x2)
     {
-        minX = x2;
-        maxX = x1;
+        xmin = x2;
+        xmax = x1;
     }
     else
     {
-        minX = x1;
-        maxX = x2;
+        xmin = x1;
+        xmax = x2;
     }
     if (y1 > y2)
     {
-        minY = y2;
-        maxY = y1;
+        ymin = y2;
+        ymax = y1;
     }
     else
     {
-        minY = y1;
-        maxY = y2;
+        ymin = y1;
+        ymax = y2;
     }
-    centerX = (x1 + x2) / 2;
-    centerY = (y1 + y2) / 2;
+    center_x = (x1 + x2) / 2;
+    center_y = (y1 + y2) / 2;
 }
 void Line::paintShape(QPainter &p, QImage *image, bool isSave)
 {
 
-//    p.begin(image);
-//    QPainter q(image);
-//    q.setPen(pen);
     p.setPen(pen);
 
     p.drawLine(x1, y1, x2, y2);
-    if(isSave)
+    if (isSave)
     {
         QPainter q(image);
         q.setPen(pen);
         q.drawLine(x1, y1, x2, y2);
     }
-
-
-
 }
 void Line::paintFrame(QPainter &p)
 {
@@ -108,28 +102,27 @@ void Line::paintFrame(QPainter &p)
     p.drawLine(x1, y1, x2, y1);
     p.drawLine(x2, y1, x2, y2);
     p.drawLine(x1, y2, x2, y2);
-    paintVertex(p, x1, y1);
-    paintVertex(p, x2, y2);
+    highlightPoint(p, x1, y1);
+    highlightPoint(p, x2, y2);
     p.setPen(curPen);
 }
 void Line::move(int dx, int dy)
 {
     for (int i = 0; i < points.size(); i++)
         movePoint(points[i], dx, dy);
-    refreshData();
+    updateInfo();
 }
 void Line::changeColor(QPainter &p, QImage *image, bool isSave)
 {
-    QColor color=QColor(rgb);
-    color.setGreen(255-color.green());
-    color.setRed(255-color.red());
-    color.setBlue(255-color.blue());
+    QColor color = QColor(rgb);
+    color.setGreen(255 - color.green());
+    color.setRed(255 - color.red());
+    color.setBlue(255 - color.blue());
     pen.setColor(color);
     p.setPen(pen);
-    paintShape(p,image,isSave);
-
+    paintShape(p, image, isSave);
 }
 double Line::calculateInfo()
 {
-    return sqrt(pow(x1-x2,2)+pow(y1-y2,2));
+    return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
 }
