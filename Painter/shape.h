@@ -32,7 +32,6 @@ public:
     bool isAroundPoint(QPoint *point, QPoint a);
     //    find a Point around a
     virtual QPoint *pointAround(QPoint a);
-    //    virtual bool isInside(QPoint a);
     //    whether inside of frame
     bool isInside(QPoint a);
     //    paint the shape
