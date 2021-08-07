@@ -90,6 +90,7 @@ void Rectangle::paintShape(QPainter &p, QImage *image, bool isSave)
     l34->paintShape(p, image, isSave);
     Line *l41 = new Line(x4, y4, x1, y1, LINE, rgb, pen);
     l41->paintShape(p, image, isSave);
+    highlightPoint(p,center_x,center_y);
 }
 void Rectangle::paintFrame(QPainter &p)
 {

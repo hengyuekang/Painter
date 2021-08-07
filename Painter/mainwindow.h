@@ -51,6 +51,8 @@ private slots:
 
     void on_actionLengthorarea_triggered();
 
+    void on_actionChoose_triggered();
+
 private:
     Ui::MainWindow *ui;
     //    all the shapes
@@ -76,5 +78,7 @@ private:
     int dx, dy;
     //    change the color of curr shape
     bool isChange;
+//    choose a shape
+    bool isChoose;
 };
 #endif // MAINWINDOW_H

@@ -47,6 +47,25 @@ public:
     virtual double calculateInfo();
 //    for POLYGON and polyline
     virtual void startNewLine(QPoint a);
+    QPoint *getCenter();
+    int getMinx()
+    {
+        return xmin;
+    }
+    int getMaxx()
+    {
+        return xmax;
+    }
+    int getMiny()
+    {
+        return ymin;
+    }
+    int getMaxy()
+    {
+        return ymax;
+    }
+//    friend QDataStream& operator<<(QDataStream&,Shape*);
+//    friend QDataStream& operator>>(QDataStream&,Shape*);
 
 
 protected:

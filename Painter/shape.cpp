@@ -1,5 +1,5 @@
 #include "shape.h"
-
+#include"qdatastream.h"
 Shape::Shape()
 {
 }
@@ -62,3 +62,41 @@ void Shape::movePoint(QPoint *point, int dx, int dy)
  void Shape::paintShape(QPainter &p, QImage *image, bool isSave){}
  void Shape::changeColor(QPainter &p, QImage *image, bool isSave){}
  void Shape::startNewLine(QPoint a){}
+QPoint *Shape::getCenter()
+{
+    QPoint *res=new QPoint(center_x,center_y);
+    return res;
+}
+//QDataStream& operator <<(QDataStream& stream,Shape *shape)
+//{
+//    qint32 type = shape->type;
+//    qint32 minx = shpae->xmin;
+//    qint32 maxx = shape->xmax;
+//    qint32 miny=shape->ymin;
+//    qint32 maxy=shape->ymax;
+//    qint32 centerx=shape->center_x;
+//    qint32 centery=shape->center_y;
+//    stream<<type<<shape->points<<minx<<maxx<<miny<<maxy<<centerx<<centery<<shape->rgb<<shape->pen;
+//    return stream;
+//}
+
+//QDataStream& operator >>(QDataStream& stream,Shape *shape)
+//{
+//    qint32 type ;
+//    qint32 minx ;
+//    qint32 maxx ;
+//    qint32 miny;
+//    qint32 maxy;
+//    qint32 centerx;
+//    qint32 centery;
+//    stream>>type>>shape->points>>minx>>maxx>>miny>>maxy>>centerx>>centery>>shape->rgb>>shape->pen;
+//    shape->type=type;
+//    shape->xmax=maxx;
+//    shape->xmin=minx;
+//    shape->ymin=miny;
+//    shape->ymax=maxy;
+//    shape->center_x=centerx;
+//    shape->center_y=centery;
+//    return stream;
+//}
+

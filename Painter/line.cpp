@@ -86,6 +86,7 @@ void Line::paintShape(QPainter &p, QImage *image, bool isSave)
     p.setPen(pen);
 
     p.drawLine(x1, y1, x2, y2);
+//    highlightPoint(p,center_x,center_y);
     if (isSave)
     {
         QPainter q(image);

@@ -93,6 +93,7 @@ void PolyLine::paintShape(QPainter &p, QImage *image, bool isSave)
         Line *line = new Line(points[i]->x(), points[i]->y(), points[i + 1]->x(), points[i + 1]->y(), LINE, rgb, pen);
         line->paintShape(p, image, isSave);
     }
+    highlightPoint(p,center_x,center_y);
 }
 void PolyLine::paintFrame(QPainter &p)
 {

@@ -95,6 +95,7 @@ void Polygon::paintShape(QPainter &p, QImage *image, bool isSave)
     {
         Line *line = new Line(points[0]->x(), points[0]->y(), points.last()->x(), points.last()->y(), LINE, rgb, pen);
         line->paintShape(p, image, isSave);
+        highlightPoint(p,center_x,center_y);
     }
 }
 void Polygon::paintFrame(QPainter &p)

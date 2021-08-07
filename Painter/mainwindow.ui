@@ -97,6 +97,7 @@
     <addaction name="actionMove"/>
     <addaction name="actionChange"/>
     <addaction name="actionLengthorarea"/>
+    <addaction name="actionChoose"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -156,6 +157,11 @@
   <action name="actionLengthorarea">
    <property name="text">
     <string>LengthorArea</string>
+   </property>
+  </action>
+  <action name="actionChoose">
+   <property name="text">
+    <string>Choose</string>
    </property>
   </action>
  </widget>

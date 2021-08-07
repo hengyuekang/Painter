@@ -86,6 +86,7 @@ void Oval::paintShape(QPainter &p, QImage *image, bool isSave)
 
     p.setPen(pen);
     p.drawEllipse(QPoint(center_x, center_y), ra, rb);
+    highlightPoint(p,center_x,center_y);
     if (isSave)
     {
         QPainter q(image);

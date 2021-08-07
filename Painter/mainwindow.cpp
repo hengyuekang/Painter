@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     //                    paint
     isMove = false;
     isChange = false;
+    isChoose=true;
 }
 
 MainWindow::~MainWindow()
@@ -56,12 +57,22 @@ void MainWindow::paintEvent(QPaintEvent *ev)
     p.setPen(curPen);
 
     //begin to paint a shape
-    if (curShape != NULL)
+    if (!isChoose&&curShape != NULL)
     {
 //        other shapes
         for (int i = 0; i < shapes.size() - 1; i++)
         {
-            shapes[i]->paintShape(p, image, true);
+            if(shapes[i]->getType()==LINE)
+            {
+                QPoint *center=shapes[i]->getCenter();
+                shapes[i]->highlightPoint(p,center->x(),center->y());
+            }
+            shapes[i]->paintShape(p,image,true);
+        }
+        if(curShape->getType()==LINE)
+        {
+            QPoint *center=curShape->getCenter();
+            curShape->highlightPoint(p,center->x(),center->y());
         }
         curShape->paintShape(p, image, isSave);
     }
@@ -69,26 +80,31 @@ void MainWindow::paintEvent(QPaintEvent *ev)
     {
         for (int i = 0; i < shapes.size(); i++)
         {
-            shapes[i]->paintShape(p, image, true);
+            if(shapes[i]->getType()==LINE)
+            {
+                QPoint *center=shapes[i]->getCenter();
+                shapes[i]->highlightPoint(p,center->x(),center->y());
+            }
+            shapes[i]->paintShape(p,image,true);
         }
     }
-
     if (isSave)
     {
         qDebug() << "now save" << saveFileName;
         image->save(saveFileName);
         isSave = false;
     }
-    if (isEdit&& curShape != NULL)
+    if ((isEdit||isChoose)&& curShape != NULL)
     {
         curShape->paintFrame(p);
     }
-    if (isChange && isEdit && curShape != NULL)
+    if (isChange && (isEdit||isChoose) && curShape != NULL)
     {
         curShape->changeColor(p, image, true);
         isChange = false;
-        update();
+//        update();
     }
+    update();
 }
 void MainWindow::mousePressEvent(QMouseEvent *ev)
 {
@@ -97,7 +113,21 @@ void MainWindow::mousePressEvent(QMouseEvent *ev)
     {
         editPos = curShape->pointAround(ev->pos());
     }
-    else
+    else if(curShape==NULL&&curShapeType==BLANK)
+    {
+        for(auto shape:shapes)
+        {
+            QPoint *center=shape->getCenter();
+            if(shape->isAroundPoint(center,ev->pos()))
+            {
+                curShape=shape;
+                curShapeType=shape->getType();
+                isChoose=true;
+                break;
+            }
+        }
+    }
+    else if(curShapeType !=BLANK)
     {
         //        a new shape
         QVector<QPoint *> points;
@@ -149,7 +179,7 @@ void MainWindow::mousePressEvent(QMouseEvent *ev)
         default:
             break;
         }
-
+        isChoose=false;
         isEdit = false;
     }
     update();
@@ -165,7 +195,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev)
     else
     {
 //        paint the shape
-        if (curShape != NULL)
+        if (curShape != NULL&&!isChoose)
         {
             curShape->setStartPoint(ev->pos());
         }
@@ -185,6 +215,11 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
     {
         if (curShape != NULL)
         {
+            if(isChoose)
+            {
+                update();
+                return;
+            }
             //            end the polygon
             if (curShape->getType() == POLYGON)
                 ((Polygon *)curShape)->setEndPoint(ev->pos());
@@ -212,6 +247,7 @@ void MainWindow::on_actionNew_triggered()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     ui->label->clear();
     QRgb bgRgb = qRgb(255, 255, 255);
     for (int i = 0; i < image->width(); i++)
@@ -267,6 +303,7 @@ void MainWindow::on_fillButton_clicked()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     update();
 }
 
@@ -277,6 +314,7 @@ void MainWindow::on_actionLine_triggered()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     update();
 }
 
@@ -287,6 +325,7 @@ void MainWindow::on_action_PolyLine_triggered()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     update();
 }
 
@@ -297,6 +336,7 @@ void MainWindow::on_actionRectangle_triggered()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     update();
 }
 
@@ -307,6 +347,7 @@ void MainWindow::on_actionOval_triggered()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     update();
 }
 
@@ -317,6 +358,7 @@ void MainWindow::on_actionPolygon_triggered()
     curShape = NULL;
     isEdit = false;
     isMove = false;
+    isChoose=false;
     update();
 }
 
@@ -336,6 +378,10 @@ void MainWindow::on_actionMove_triggered()
         dx = ptr->getdx();
         dy = ptr->getdy();
         qDebug() << dx << dy;
+        QRgb bgRgb = qRgb(255, 255, 255);
+        for (int i = curShape->getMinx(); i <= curShape->getMaxx(); i++)
+            for (int j = curShape->getMiny(); j <= curShape->getMaxy(); j++)
+                image->setPixel(i, j, bgRgb);
         curShape->move(dx, dy);
     }
 
@@ -358,6 +404,10 @@ void MainWindow::on_actionLengthorarea_triggered()
     {
         res = curShape->calculateInfo();
     }
+    else
+    {
+        res=0;
+    }
     QString resstring = QString::number(res);
     std::string str = resstring.toStdString();
     const char *ch = str.c_str();
@@ -366,6 +416,17 @@ void MainWindow::on_actionLengthorarea_triggered()
                              tr(ch),
                              QMessageBox::Ok,
                              QMessageBox::Ok);
+    update();
+}
+
+
+void MainWindow::on_actionChoose_triggered()
+{
+    qDebug()<<"choose\n";
+    isChoose=false;
+    isEdit=false;
+    curShape=NULL;
+    curShapeType=BLANK;
     update();
 }
 
